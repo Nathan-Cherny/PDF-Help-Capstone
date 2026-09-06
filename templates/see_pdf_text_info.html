@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extract Text</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      #navbar {
+        display: flex;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: white;
+        padding: 20px;
+        align-items: center;
+        font-size: 15px;
+        text-decoration: none;
+        gap: 1%;
+      }
+
+      :root {
+        --paper: #d6ecf9;
+        --paper-alt: #e2e1d3;
+        --card: #fbfaf5;
+        --ink: #21261f;
+        --ink-soft: #5b6155;
+        --rule: #cfcdbb;
+        --keep: #35604f;
+        --keep-bg: #e7efe9;
+        --reject: #ae3a28;
+        --reject-bg: #f5e4e0;
+        --focus: #2e5eaa;
+        --radius: 3px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+        overflow: hidden;
+      }
+
+      h1,
+      h2,
+      .serif {
+        font-family: "Source Serif 4", Georgia, serif;
+      }
+
+      button {
+        font-family: inherit;
+        font-size: inherit;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      #stats {
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        font-size: 25px;
+        padding: 25px;
+        align-items: center;
+      }
+
+      #showAllText {
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        max-height: 85%;
+        padding-left: 20px;
+      }
+
+      #showAllText div {
+        padding: 5px;
+        display: flex;
+        gap: 25px;
+      }
+
+      #showAllText p {
+        margin: 0;
+      }
+
+      .dropzone {
+        margin: auto;
+        width: 100%;
+        max-width: 460px;
+        border: 1.5px dashed var(--rule);
+        border-radius: var(--radius);
+        background: var(--card);
+        padding: 56px 24px;
+        text-align: center;
+        transition:
+          border-color 120ms ease,
+          background 120ms ease;
+      }
+      .choose-btn {
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        border-radius: var(--radius);
+        padding: 10px 20px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+    </style>
+    <script>
+      function intToHexColor(color) {
+        return "#" + color.toString(16).padStart(6, "0");
+      }
+
+      function getMostCommonKeys(data) {
+        const results = {};
+        for (const key of ["color", "size"]) {
+          const counts = {};
+          for (const item of data[0]) {
+            const value = item[key];
+            counts[value] = (counts[value] || 0) + 1;
+          }
+          results[key] = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        }
+        return results;
+      }
+
+      let data = null;
+
+      // Render the data once it has been fetched
+      function show_everything() {
+        if (!data || data.length === 0) return;
+
+        // Hide the dropzone once we have data
+        document.getElementById("dropzone").style.display = "none";
+
+        const showAllText = document.getElementById("showAllText");
+        showAllText.innerHTML = ""; // Clear any previous text
+
+        let organizedTextData = {};
+
+        for (let page of data) {
+          for (let textData of page) {
+            let key = `${textData["color"]}|${textData["size"]}`;
+            if (!organizedTextData[key]) {
+              organizedTextData[key] = [];
+            }
+            organizedTextData[key].push(textData);
+          }
+        }
+
+        organizedTextData = Object.fromEntries(
+          Object.entries(organizedTextData).sort(
+            (a, b) => b[1].length - a[1].length,
+          ),
+        );
+
+        for (let textDataGroup in organizedTextData) {
+          const textDataGroupHTML = document.createElement("div");
+          textDataGroupHTML.id = textDataGroup;
+          textDataGroupHTML.innerHTML = `${textDataGroup}`;
+
+          textDataGroupHTML.onclick = (e) => {
+            for (const ele of document.getElementsByClassName(e.target.id)) {
+              if (ele.style.display == "none") {
+                ele.style.display = "flex";
+              } else {
+                ele.style.display = "none";
+              }
+            }
+          };
+
+          showAllText.appendChild(textDataGroupHTML);
+
+          for (let textData of organizedTextData[textDataGroup]) {
+            const element = document.createElement("div");
+            const text = document.createElement("p");
+            const info = document.createElement("p");
+
+            const hexColor = intToHexColor(textData["color"]);
+
+            element.classList.add(textDataGroup);
+            element.style.fontSize = `${textData["size"]}px`;
+            element.style.color = hexColor;
+            element.style.backgroundColor = hexColor + "55";
+
+            info.style.marginLeft = "auto";
+            info.style.paddingRight = "25px";
+
+            text.innerHTML = textData["text"];
+            info.innerHTML = `color: ${textData["color"]}\tsize: ${textData["size"]}`;
+
+            element.appendChild(text);
+            element.appendChild(info);
+            showAllText.appendChild(element);
+          }
+        }
+
+        let highestKey = Object.keys(organizedTextData)[0].split("|");
+        document.getElementById("stats").innerHTML = `
+        <h3>
+        The pairing with the highest combination is: 
+        </br>
+        Color: ${highestKey[0]}</br>
+        Size: ${highestKey[1]}
+        </h3>
+        <p>
+          This means that, more than likely, the 'main content' of the PDF has this pairing.
+          </p>
+        `;
+      }
+
+      // Setup event listeners when the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        const fileInput = document.getElementById("fileInput");
+        const chooseBtn = document.getElementById("chooseBtn");
+        const errorMsg = document.getElementById("errorMsg");
+
+        chooseBtn.addEventListener("click", () => {
+          fileInput.click();
+        });
+
+        fileInput.addEventListener("change", async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // Prepare the file for sending
+          const formData = new FormData();
+          formData.append("file", file);
+
+          try {
+            // Send to the Flask backend
+            const response = await fetch("/see_pdf_text_info", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (response.ok) {
+              data = await response.json();
+              show_everything();
+            } else {
+              const errorData = await response.json();
+              errorMsg.textContent = errorData.error || "Upload failed";
+              errorMsg.removeAttribute("hidden");
+            }
+          } catch (err) {
+            errorMsg.textContent = "Network error occurred.";
+            errorMsg.removeAttribute("hidden");
+            console.error(err);
+          }
+        });
+      });
+    </script>
+  </head>
+  <body onload="show_everything()">
+    <div id="stats"></div>
+    <div id="showAllText"></div>
+    <div id="navbar">
+      <a href="/">Home</a>
+      <a href="/crop_pdf">Crop A PDF</a>
+      <a href="/see_pdf_text_info">See PDF Text Info</a>
+      <a href="/extract_text">Extract Text From PDF</a>
+      <span
+        style="
+          color: black;
+          margin-left: auto;
+          font-size: 20px;
+          cursor: pointer;
+        "
+        onclick="document.getElementById('navbar').style.display = 'none'"
+      >
+        X
+      </span>
+    </div>
+
+    <section id="dropzone" class="dropzone">
+      <p class="lede">Upload PDF to scan</p>
+      <button class="choose-btn" id="chooseBtn">Choose a file</button>
+      <input type="file" id="fileInput" accept="application/pdf" />
+      <div class="error-msg" id="errorMsg" hidden=""></div>
+    </section>
+  </body>
+</html>

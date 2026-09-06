@@ -1,0 +1,17 @@
+Make a web app that:
+    - section finder
+        - you do the see thing so you get all the headers
+        - so that you can search important headers/sections for key word
+    - crop pdf
+        - you upload a pdf
+        - you can then see the pdf and select the starting pages and pages to exclude
+        - from there you can crop the pdf and download a new .pdf
+    - extract text from pdf
+        - ask the user for specific information - text size, color, etc that matches the key section
+        - the app will then scan the text and return the data of that information, denoted by which pages they came from
+        - could also ask the user for information about what the page number looks like
+    - analyze pdf
+        - output a list of the most frequent stylizations in the pdf and some example texts for each style
+        - that way the user can easily see which sections have which stylizations
+    - export
+        - take all of this data and put it in the format appropriate for AI infra team

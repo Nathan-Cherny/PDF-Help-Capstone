@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extract Text</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      #navbar {
+        display: flex;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: white;
+        padding: 20px;
+        align-items: center;
+        font-size: 15px;
+        text-decoration: none;
+        gap: 1%;
+      }
+
+      :root {
+        --paper: #d6ecf9;
+        --paper-alt: #e2e1d3;
+        --card: #fbfaf5;
+        --ink: #21261f;
+        --ink-soft: #5b6155;
+        --rule: #cfcdbb;
+        --keep: #35604f;
+        --keep-bg: #e7efe9;
+        --reject: #ae3a28;
+        --reject-bg: #f5e4e0;
+        --focus: #2e5eaa;
+        --radius: 3px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+        overflow: hidden;
+      }
+
+      h1,
+      h2,
+      .serif {
+        font-family: "Source Serif 4", Georgia, serif;
+      }
+
+      button {
+        font-family: inherit;
+        font-size: inherit;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar">
+      <a href="/">Home</a>
+      <a href="/crop_pdf">Crop A PDF</a>
+      <a href="/see_pdf_text_info">See PDF Text Info</a>
+      <a href="/extract_text">Extract Text From PDF</a>
+      <span
+        style="
+          color: black;
+          margin-left: auto;
+          font-size: 20px;
+          cursor: pointer;
+        "
+        onclick="document.getElementById('navbar').style.display = 'none'"
+      >
+        X
+      </span>
+    </div>
+  </body>
+</html>
