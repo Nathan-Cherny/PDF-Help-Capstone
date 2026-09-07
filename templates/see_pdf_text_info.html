@@ -135,11 +135,46 @@
         cursor: pointer;
       }
 
+      .textDataGroupHTML {
+        display: flex;
+        background-color: rgba(0, 0, 0, 0.25);
+        flex-direction: row;
+      }
+
+      .textDataGroupHTML span {
+        margin-left: auto;
+      }
+
       input[type="file"] {
         display: none;
       }
     </style>
     <script>
+      var file = null
+      function downloadString(text, filename, mimeType) {
+        // 1. Create a Blob object containing the string data
+        const blob = new Blob([text], { type: mimeType });
+
+        // 2. Create an invisible anchor (<a>) element
+        const link = document.createElement("a");
+
+        // 3. Create a temporary URL pointing to the Blob object
+        link.href = URL.createObjectURL(blob);
+
+        // 4. Set the file name for the download
+        link.download = filename;
+
+        // 5. Append the link to the DOM (required for Firefox)
+        document.body.appendChild(link);
+
+        // 6. Programmatically trigger the download
+        link.click();
+
+        // 7. Clean up by removing the link and revoking the URL
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+
       function intToHexColor(color) {
         return "#" + color.toString(16).padStart(6, "0");
       }
@@ -191,6 +226,25 @@
           const textDataGroupHTML = document.createElement("div");
           textDataGroupHTML.id = textDataGroup;
           textDataGroupHTML.innerHTML = `${textDataGroup}`;
+          textDataGroupHTML.classList.add("textDataGroupHTML");
+
+          let download = document.createElement("span");
+          download.innerHTML = "download";
+          download.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            let elements = document.getElementsByClassName(textDataGroup);
+            let allText = "";
+
+            for (let element of elements) {
+              allText += `${element.firstChild.innerText} `;
+            }
+
+            console.log(file)
+            downloadString(allText, `${file.name.split(".")[0]}`, "text/plain")
+          };
+
+          textDataGroupHTML.appendChild(download);
 
           textDataGroupHTML.onclick = (e) => {
             for (const ele of document.getElementsByClassName(e.target.id)) {
@@ -253,7 +307,7 @@
         });
 
         fileInput.addEventListener("change", async (e) => {
-          const file = e.target.files[0];
+          file = e.target.files[0];
           if (!file) return;
 
           // Prepare the file for sending
