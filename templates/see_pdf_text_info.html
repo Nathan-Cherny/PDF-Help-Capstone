@@ -286,12 +286,17 @@
           );
 
           textDataGroupHTML.onclick = (e) => {
+            let elements = document.getElementsByClassName(e.target.id);
+
+            let ele1 = elements[0];
+            if (ele1.style.display == "none") {
+              var newStatus = "flex";
+            } else {
+              var newStatus = "none";
+            }
+
             for (const ele of document.getElementsByClassName(e.target.id)) {
-              if (ele.style.display == "none") {
-                ele.style.display = "flex";
-              } else {
-                ele.style.display = "none";
-              }
+                ele.style.display = newStatus;
             }
           };
 
@@ -329,7 +334,7 @@
           <div style="text-align: center;
       font-size: 1rem;">
             <h3>
-            The pairing with the highest combination is: 
+            The pairing with the highest combination is:
             </br>
             Color: ${highestKey[0]}</br>
             Size: ${highestKey[1]}
@@ -344,6 +349,7 @@
               justify-content: space-around;
           ">
             <button onclick="hideAllGroupHTMLs()">Hide All</button>
+            <button onclick="showAllTop3GroupHTMLs()">Show All, Top 3</button>
             <button onclick="showAllGroupHTMLs()">Show All</button>
           </div>
         </div>
@@ -355,6 +361,25 @@
         for (let element of elements) {
           console.log(element);
           element.style.display = "none";
+        }
+      }
+
+      function showAllTop3GroupHTMLs() {
+        hideAllGroupHTMLs();
+
+        let groupDatas = document.getElementsByClassName("textDataGroupHTML");
+        for (let groupData of groupDatas) {
+          let textDataGroup = groupData.id;
+
+          let top3elements = [];
+          let textDataElements = document.getElementsByClassName(textDataGroup);
+          for (let i = 0; i < 3; i++) {
+            top3elements.push(textDataElements[i]);
+          }
+
+          for (let element of top3elements) {
+            element.style.display = "flex";
+          }
         }
       }
 
