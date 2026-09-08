@@ -17,8 +17,10 @@
         bottom: 0;
         width: 100%;
         background: white;
+        border-top: 1px solid gray;
         padding: 20px;
         align-items: center;
+        z-index: 1000;
         font-size: 15px;
         text-decoration: none;
         gap: 1%;
@@ -67,12 +69,6 @@
         overflow: hidden;
       }
 
-      h1,
-      h2,
-      .serif {
-        font-family: "Source Serif 4", Georgia, serif;
-      }
-
       button {
         font-family: inherit;
         font-size: inherit;
@@ -97,8 +93,8 @@
         align-items: center;
         gap: 14px;
         padding: 14px 24px;
-        background: var(--card);
-        border-bottom: 1px solid var(--rule);
+        background: white;
+        border-bottom: 1px solid gray;
         flex-shrink: 0;
       }
       .top-left h1 {
@@ -549,11 +545,7 @@
           <div class="page-pane" id="pagePane">
             <div class="empty-state" id="emptyState">
               <section id="dropzone" class="dropzone">
-                <p class="lede">Drop a PDF here</p>
-                <p>
-                  Then scroll through it, set a page range, and tap any page to
-                  leave it out.
-                </p>
+                <p class="lede">Drop a PDF here to begin cropping</p>
                 <button class="choose-btn" id="chooseBtn">Choose a file</button>
                 <input type="file" id="fileInput" accept="application/pdf" />
                 <div class="error-msg" id="errorMsg" hidden></div>

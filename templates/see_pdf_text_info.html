@@ -16,9 +16,11 @@
         position: absolute;
         bottom: 0;
         width: 100%;
+        z-index: 1000;
         background: white;
         padding: 20px;
         align-items: center;
+        border-top: 1px solid gray;
         font-size: 15px;
         text-decoration: none;
         gap: 1%;
@@ -67,10 +69,11 @@
         overflow: hidden;
       }
 
-      h1,
-      h2,
-      .serif {
-        font-family: "Source Serif 4", Georgia, serif;
+      h1 {
+        font-size: 21px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
       }
 
       button {
@@ -84,13 +87,23 @@
         outline-offset: 2px;
       }
 
+      .workspace {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+      }
+
       #stats {
+        background-color: white;
+        border-bottom: 1px solid gray;
         max-height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         font-size: 25px;
-        padding: 25px;
+        padding: 14px 24px;
         align-items: center;
       }
 
@@ -99,11 +112,13 @@
         flex-direction: column;
         overflow-y: scroll;
         max-height: 85%;
+      }
+
+      #showAllText * {
         padding-left: 20px;
       }
 
       #showAllText div {
-        padding: 5px;
         display: flex;
         gap: 25px;
       }
@@ -139,10 +154,23 @@
         display: flex;
         background-color: rgba(0, 0, 0, 0.25);
         flex-direction: row;
+        cursor: pointer;
+        border-bottom: 0.5px solid gray;
+        align-items: center;
+        padding-left: 15px;
+      }
+
+      .textDataGroupHTML:hover {
+        background-color: rgba(0, 0, 0, 0.35);
       }
 
       .textDataGroupHTML span {
+        background-color: rgba(255, 255, 255, 0.5);
         margin-left: auto;
+        padding: 5px;
+        text-align: center;
+        color: black !important;
+        padding-right: 15px;
       }
 
       input[type="file"] {
@@ -150,7 +178,7 @@
       }
     </style>
     <script>
-      var file = null
+      var file = null;
       function downloadString(text, filename, mimeType) {
         // 1. Create a Blob object containing the string data
         const blob = new Blob([text], { type: mimeType });
@@ -208,13 +236,20 @@
 
         for (let page of data) {
           for (let textData of page) {
-            let key = `${textData["color"]}|${textData["size"]}`;
+            let key = `${intToHexColor(parseInt(textData["color"]))}|${textData["size"]}`;
             if (!organizedTextData[key]) {
               organizedTextData[key] = [];
             }
             organizedTextData[key].push(textData);
           }
         }
+
+        const LIMIT = 5;
+        organizedTextData = Object.fromEntries(
+          Object.entries(organizedTextData).filter(
+            ([key, list]) => list.length >= LIMIT,
+          ),
+        );
 
         organizedTextData = Object.fromEntries(
           Object.entries(organizedTextData).sort(
@@ -229,7 +264,7 @@
           textDataGroupHTML.classList.add("textDataGroupHTML");
 
           let download = document.createElement("span");
-          download.innerHTML = "download";
+          download.innerHTML = "Download";
           download.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -240,11 +275,15 @@
               allText += `${element.firstChild.innerText} `;
             }
 
-            console.log(file)
-            downloadString(allText, `${file.name.split(".")[0]}`, "text/plain")
+            console.log(file);
+            downloadString(allText, `${file.name.split(".")[0]}`, "text/plain");
           };
 
           textDataGroupHTML.appendChild(download);
+          console.log(organizedTextData[textDataGroup][0]["color"]);
+          textDataGroupHTML.style.color = intToHexColor(
+            organizedTextData[textDataGroup][0]["color"],
+          );
 
           textDataGroupHTML.onclick = (e) => {
             for (const ele of document.getElementsByClassName(e.target.id)) {
@@ -266,6 +305,7 @@
             const hexColor = intToHexColor(textData["color"]);
 
             element.classList.add(textDataGroup);
+            element.classList.add("textDataElement");
             element.style.fontSize = `${textData["size"]}px`;
             element.style.color = hexColor;
             element.style.backgroundColor = hexColor + "55";
@@ -284,16 +324,45 @@
 
         let highestKey = Object.keys(organizedTextData)[0].split("|");
         document.getElementById("stats").innerHTML = `
-        <h3>
-        The pairing with the highest combination is: 
-        </br>
-        Color: ${highestKey[0]}</br>
-        Size: ${highestKey[1]}
-        </h3>
-        <p>
-          This means that, more than likely, the 'main content' of the PDF has this pairing.
-          </p>
+        <h1 style="text-align: left; width: 100%">See PDF Text Info & Extract</h1>
+        <div style="display: flex;flex-direction: row;width: 75%;justify-content: space-around;">
+          <div style="text-align: center;
+      font-size: 1rem;">
+            <h3>
+            The pairing with the highest combination is: 
+            </br>
+            Color: ${highestKey[0]}</br>
+            Size: ${highestKey[1]}
+            </h3>
+            <p>
+              This means that, more than likely, the 'main content' of the PDF has this pairing.
+              </p>
+          </div>
+          <div style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-around;
+          ">
+            <button onclick="hideAllGroupHTMLs()">Hide All</button>
+            <button onclick="showAllGroupHTMLs()">Show All</button>
+          </div>
+        </div>
         `;
+      }
+
+      function hideAllGroupHTMLs() {
+        let elements = document.getElementsByClassName("textDataElement");
+        for (let element of elements) {
+          console.log(element);
+          element.style.display = "none";
+        }
+      }
+
+      function showAllGroupHTMLs() {
+        let elements = document.getElementsByClassName("textDataElement");
+        for (let element of elements) {
+          element.style.display = "flex";
+        }
       }
 
       // Setup event listeners when the page loads
@@ -339,30 +408,36 @@
     </script>
   </head>
   <body onload="show_everything()">
-    <div id="stats"></div>
-    <div id="showAllText"></div>
-    <div id="navbar">
-      <a href="/">Home</a>
-      <a href="/crop_pdf">Crop A PDF</a>
-      <a href="/see_pdf_text_info">See PDF Text Info</a>
-      <span
-        style="
-          color: black;
-          margin-left: auto;
-          font-size: 20px;
-          cursor: pointer;
-        "
-        onclick="document.getElementById('navbar').style.display = 'none'"
-      >
-        X
-      </span>
-    </div>
+    <div class="workspace">
+      <div id="stats">
+        <h1 style="text-align: left; width: 100%">
+          See PDF Text Info & Extract
+        </h1>
+      </div>
+      <div id="showAllText"></div>
+      <div id="navbar">
+        <a href="/">Home</a>
+        <a href="/crop_pdf">Crop A PDF</a>
+        <a href="/see_pdf_text_info">See PDF Text Info</a>
+        <span
+          style="
+            color: black;
+            margin-left: auto;
+            font-size: 20px;
+            cursor: pointer;
+          "
+          onclick="document.getElementById('navbar').style.display = 'none'"
+        >
+          X
+        </span>
+      </div>
 
-    <section id="dropzone" class="dropzone">
-      <p class="lede">Upload PDF to scan</p>
-      <button class="choose-btn" id="chooseBtn">Choose a file</button>
-      <input type="file" id="fileInput" accept="application/pdf" />
-      <div class="error-msg" id="errorMsg" hidden=""></div>
-    </section>
+      <section id="dropzone" class="dropzone">
+        <p class="lede">Upload PDF to scan</p>
+        <button class="choose-btn" id="chooseBtn">Choose a file</button>
+        <input type="file" id="fileInput" accept="application/pdf" />
+        <div class="error-msg" id="errorMsg" hidden=""></div>
+      </section>
+    </div>
   </body>
 </html>
