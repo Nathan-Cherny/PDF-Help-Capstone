@@ -296,7 +296,7 @@
             }
 
             for (const ele of document.getElementsByClassName(e.target.id)) {
-                ele.style.display = newStatus;
+              ele.style.display = newStatus;
             }
           };
 
@@ -329,31 +329,55 @@
 
         let highestKey = Object.keys(organizedTextData)[0].split("|");
         document.getElementById("stats").innerHTML = `
-        <h1 style="text-align: left; width: 100%">See PDF Text Info & Extract</h1>
-        <div style="display: flex;flex-direction: row;width: 75%;justify-content: space-around;">
-          <div style="text-align: center;
-      font-size: 1rem;">
-            <h3>
-            The pairing with the highest combination is:
-            </br>
-            Color: ${highestKey[0]}</br>
-            Size: ${highestKey[1]}
-            </h3>
-            <p>
-              This means that, more than likely, the 'main content' of the PDF has this pairing.
-              </p>
-          </div>
-          <div style="
-              display: flex;
-              flex-direction: column;
-              justify-content: space-around;
-          ">
-            <button onclick="hideAllGroupHTMLs()">Hide All</button>
-            <button onclick="showAllTop3GroupHTMLs()">Show All, Top 3</button>
-            <button onclick="showAllGroupHTMLs()">Show All</button>
-          </div>
-        </div>
-        `;
+              <h1 style="text-align: left; width: 100%">See PDF Text Info & Extract</h1>
+              <div style="display: flex;gap: 15px;flex-direction: row;width: 75%;justify-content: space-around;align-content: center;align-items: center;">
+                <div style="text-align: center;
+            font-size: 1rem;">
+                  <h3>
+                  The pairing with the highest combination is:
+                  </br>
+                  Color: ${highestKey[0]}</br>
+                  Size: ${highestKey[1]}
+                  </h3>
+                  <p>
+                    This means that, more than likely, the 'main content' of the PDF has this pairing.
+                    </p>
+                </div>
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-around;
+                ">
+                  <button onclick="hideAllGroupHTMLs()">Hide All</button>
+                  <button onclick="showAllTop3GroupHTMLs()">Show All, Top 3</button>
+                  <button onclick="showAllGroupHTMLs()">Show All</button>
+                </div>
+                <div>
+                  <button onclick="makeResponse()">Make Response</button>
+                </div>
+              </div>
+              `;
+      }
+
+      function makeResponse(text) {
+        if (!text) text = prompt("Text");
+
+        const template = {
+          authors: [],
+          institution: "",
+          text: [text],
+          title: "",
+          header: "",
+          date_published: null,
+          date_added: new Date(),
+          start_page: 1,
+        };
+
+        downloadString(
+          JSON.stringify(template, null, 4),
+          "new_response.json",
+          "application/json",
+        );
       }
 
       function hideAllGroupHTMLs() {
