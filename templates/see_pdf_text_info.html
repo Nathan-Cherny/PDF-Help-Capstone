@@ -120,7 +120,8 @@
 
       #showAllText div {
         display: flex;
-        gap: 25px;
+        padding-bottom: 0px;
+        padding-top: 0px;
       }
 
       #showAllText p {
@@ -167,10 +168,19 @@
       .textDataGroupHTML .options {
         background-color: rgba(255, 255, 255, 0.5);
         margin-left: auto;
-        padding: 5px;
         text-align: center;
+        padding: 0 !important;
         color: black !important;
-        padding-right: 15px;
+      }
+
+      .options span {
+        border: 2px solid gray;
+        padding: 15px 10px !important;
+        text-align: center;
+      }
+
+      .options span:hover {
+        border: 2px solid yellow;
       }
 
       input[type="file"] {
@@ -178,8 +188,8 @@
       }
     </style>
     <script>
-      var main_text = null
-      var headers = null
+      var main_text = null;
+      var headers = null;
       var file = null;
       function downloadString(text, filename, mimeType) {
         // 1. Create a Blob object containing the string data
@@ -265,21 +275,27 @@
           textDataGroupHTML.innerHTML = `${textDataGroup}`;
           textDataGroupHTML.classList.add("textDataGroupHTML");
 
-          let options = document.createElement("div")
-          options.classList.add("options")
+          let options = document.createElement("div");
+          options.classList.add("options");
 
-          let makeMainText = document.createElement("span")
-          makeMainText.innerHTML = "Make Main Text"
-          makeMainText.onclick = () => {
-            document.getElementById("mainTextDisplay").innerHTML = textDataGroup
-          }
+          let makeMainText = document.createElement("span");
+          makeMainText.innerHTML = "Make Main Text";
+          makeMainText.style.backgroundColor = "rgb(200, 255, 255)";
+          makeMainText.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById("mainTextDisplay").innerHTML =
+              textDataGroup;
+          };
 
-          let makeHeader = document.createElement("span")
-          makeHeader.innerHTML = "Make Header"
-          makeHeader.onclick = () => {
-            document.getElementById("headerDisplay").innerHTML = textDataGroup
-          }
-
+          let makeHeader = document.createElement("span");
+          makeHeader.innerHTML = "Make Header";
+          makeHeader.style.backgroundColor = "rgb(255, 200, 200)";
+          makeHeader.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById("headerDisplay").innerHTML = textDataGroup;
+          };
 
           let download = document.createElement("span");
           download.innerHTML = "Download";
@@ -296,11 +312,11 @@
             downloadString(allText, `${file.name.split(".")[0]}`, "text/plain");
           };
 
-          options.appendChild(makeHeader)
-          options.appendChild(makeMainText)
-          options.appendChild(download);
+          options.appendChild(makeHeader);
+          options.appendChild(makeMainText);
+          // options.appendChild(download);
 
-          textDataGroupHTML.appendChild(options)
+          textDataGroupHTML.appendChild(options);
 
           textDataGroupHTML.style.color = intToHexColor(
             organizedTextData[textDataGroup][0]["color"],
@@ -378,19 +394,62 @@
                   <button onclick="showAllGroupHTMLs()">Show All</button>
                 </div>
                 <div>
-                  <button onclick="makeResponse()">Make Response</button>
+                  <button onclick="generateResponse()">Generate Response</button>
                 </div>
               </div>
               `;
       }
 
-      function makeResponse(text) {
-        if (!text) text = prompt("Text");
+      function generateResponse() {
+        let responses = [{ text: [""], header: "" }]; // each entry is a response - in each response is the text, a list of strings corresponding to the pages
+
+        let header = document.getElementById("headerDisplay").innerHTML;
+        let mainText = document.getElementById("mainTextDisplay").innerHTML;
+
+        if(!header.includes("|") || !mainText.includes("|")){
+          alert(`Hey man, you have to provide a header or a main text. its not gonna work otherwise`)
+        }
+
+        let responsePage = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          let page = data[i];
+          responses[responses.length - 1]["text"].push("");
+          responsePage += 1;
+          for (let line of page) {
+            let code = `${intToHexColor(line["color"])}|${line["size"]}`;
+
+            if (code == header) {
+              if (
+                responses[responses.length - 1]["text"].length == 1 &&
+                responses[responses.length - 1]["text"][0] == ""
+              ) {
+                responses[responses.length - 1]["header"] += line["text"];
+              } 
+              else {
+                responses.push({ text: [""], header: line["text"] });
+                responsePage = 0;
+              }
+            } else if (code == mainText && responses.length > 1) {
+              responses[responses.length - 1]["text"][responsePage] +=
+                line["text"];
+            }
+          }
+        }
+
+        for(let response of responses){
+          console.log(response)
+          makeResponse(response.text, response.header)
+        }
+      }
+
+      function makeResponse(text, header) {
+        if (!text) text = [prompt("Text")];
 
         const template = {
           authors: [],
           institution: "",
-          text: [text],
+          text: text,
           title: "",
           header: "",
           date_published: null,
@@ -400,7 +459,7 @@
 
         downloadString(
           JSON.stringify(template, null, 4),
-          "new_response.json",
+          `${header}.json`,
           "application/json",
         );
       }
@@ -408,7 +467,6 @@
       function hideAllGroupHTMLs() {
         let elements = document.getElementsByClassName("textDataElement");
         for (let element of elements) {
-          console.log(element);
           element.style.display = "none";
         }
       }
