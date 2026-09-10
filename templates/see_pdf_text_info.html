@@ -164,7 +164,7 @@
         background-color: rgba(0, 0, 0, 0.35);
       }
 
-      .textDataGroupHTML span {
+      .textDataGroupHTML .options {
         background-color: rgba(255, 255, 255, 0.5);
         margin-left: auto;
         padding: 5px;
@@ -178,6 +178,8 @@
       }
     </style>
     <script>
+      var main_text = null
+      var headers = null
       var file = null;
       function downloadString(text, filename, mimeType) {
         // 1. Create a Blob object containing the string data
@@ -263,6 +265,22 @@
           textDataGroupHTML.innerHTML = `${textDataGroup}`;
           textDataGroupHTML.classList.add("textDataGroupHTML");
 
+          let options = document.createElement("div")
+          options.classList.add("options")
+
+          let makeMainText = document.createElement("span")
+          makeMainText.innerHTML = "Make Main Text"
+          makeMainText.onclick = () => {
+            document.getElementById("mainTextDisplay").innerHTML = textDataGroup
+          }
+
+          let makeHeader = document.createElement("span")
+          makeHeader.innerHTML = "Make Header"
+          makeHeader.onclick = () => {
+            document.getElementById("headerDisplay").innerHTML = textDataGroup
+          }
+
+
           let download = document.createElement("span");
           download.innerHTML = "Download";
           download.onclick = (e) => {
@@ -275,12 +293,15 @@
               allText += `${element.firstChild.innerText} `;
             }
 
-            console.log(file);
             downloadString(allText, `${file.name.split(".")[0]}`, "text/plain");
           };
 
-          textDataGroupHTML.appendChild(download);
-          console.log(organizedTextData[textDataGroup][0]["color"]);
+          options.appendChild(makeHeader)
+          options.appendChild(makeMainText)
+          options.appendChild(download);
+
+          textDataGroupHTML.appendChild(options)
+
           textDataGroupHTML.style.color = intToHexColor(
             organizedTextData[textDataGroup][0]["color"],
           );
@@ -342,6 +363,10 @@
                   <p>
                     This means that, more than likely, the 'main content' of the PDF has this pairing.
                     </p>
+                </div>
+                <div>
+                  <p id="mainTextDisplay">Main Text: null</p>
+                  <p id="headerDisplay">Header: null</p>
                 </div>
                 <div style="
                     display: flex;
