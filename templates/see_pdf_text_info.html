@@ -396,6 +396,14 @@
                 <div>
                   <button onclick="generateResponse()">Generate Response</button>
                 </div>
+                <div>
+                  <input id="authorsInput" placeholder="authors" />
+                  <input id="institutionInput" placeholder="institution" />
+                  <input id="citationInput" placeholder="citation" />
+                  <input id="titleInput" placeholder="title" />
+                  <input id="date_published" placeholder="date_published" />
+                  <input id="start_page" type="number" placeholder="start_page" />
+                </div>
               </div>
               `;
       }
@@ -447,14 +455,15 @@
         if (!text) text = [prompt("Text")];
 
         const template = {
-          authors: [],
-          institution: "",
+          authors: document.getElementById("authorsInput").value || [],
+          institution: document.getElementById("institutionInput").value || "",
           text: text,
-          title: "",
-          header: "",
-          date_published: null,
+          citation: document.getElementById("citationInput").value || "",
+          title: document.getElementById("titleInput").value || "",
+          header: header,
+          date_published: document.getElementById("date_published").value || "" ,
           date_added: new Date(),
-          start_page: 1,
+          start_page: document.getElementById("start_page").value || 1,
         };
 
         downloadString(
