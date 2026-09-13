@@ -433,10 +433,16 @@
           }
         }
 
+        let totalObject = {}
         for(let response of responses){
-          console.log(response)
-          makeResponse(response.text, response.header)
+          Object.assign(totalObject, makeResponse(response.text, response.header))
         }
+
+        downloadString(
+          JSON.stringify(totalObject, null, 4),
+          `${file.name.split(".")[0]}.json`,
+          "application/json",
+        );
       }
 
       function makeResponse(text, header) {
@@ -454,11 +460,9 @@
           start_page: parseInt(document.getElementById("start_page").value) || 1,
         };
 
-        downloadString(
-          JSON.stringify(template, null, 4),
-          `${header}.json`,
-          "application/json",
-        );
+        let returnObj = {}
+        returnObj[`${header}`] = template
+        return returnObj
       }
 
       function hideAllGroupHTMLs() {
