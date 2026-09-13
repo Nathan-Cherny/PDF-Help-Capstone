@@ -256,7 +256,7 @@
           }
         }
 
-        const LIMIT = 5;
+        const LIMIT = 3;
         organizedTextData = Object.fromEntries(
           Object.entries(organizedTextData).filter(
             ([key, list]) => list.length >= LIMIT,
@@ -368,18 +368,6 @@
         document.getElementById("stats").innerHTML = `
               <h1 style="text-align: left; width: 100%">See PDF Text Info & Extract</h1>
               <div style="display: flex;gap: 15px;flex-direction: row;width: 75%;justify-content: space-around;align-content: center;align-items: center;">
-                <div style="text-align: center;
-            font-size: 1rem;">
-                  <h3>
-                  The pairing with the highest combination is:
-                  </br>
-                  Color: ${highestKey[0]}</br>
-                  Size: ${highestKey[1]}
-                  </h3>
-                  <p>
-                    This means that, more than likely, the 'main content' of the PDF has this pairing.
-                    </p>
-                </div>
                 <div>
                   <p id="mainTextDisplay">Main Text: null</p>
                   <p id="headerDisplay">Header: null</p>
@@ -433,7 +421,7 @@
                 responses[responses.length - 1]["text"][0] == ""
               ) {
                 responses[responses.length - 1]["header"] += line["text"];
-              } 
+              }
               else {
                 responses.push({ text: [""], header: line["text"] });
                 responsePage = 0;
@@ -455,15 +443,15 @@
         if (!text) text = [prompt("Text")];
 
         const template = {
-          authors: JSON.parse(document.getElementById("authorsInput").value) || [],
+          authors: JSON.parse(document.getElementById("authorsInput").value || "[]"),
           institution: document.getElementById("institutionInput").value || "",
-          text: text,
+          text: text.filter(n => !!n),
           citation: document.getElementById("citationInput").value || "",
           title: document.getElementById("titleInput").value || "",
           header: header,
-          date_published: document.getElementById("date_published").value || "" ,
+          date_published: new Date(document.getElementById("date_published").value) || "" ,
           date_added: new Date(),
-          start_page: document.getElementById("start_page").value || 1,
+          start_page: parseInt(document.getElementById("start_page").value) || 1,
         };
 
         downloadString(
