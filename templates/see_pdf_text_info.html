@@ -455,7 +455,7 @@
         if (!text) text = [prompt("Text")];
 
         const template = {
-          authors: document.getElementById("authorsInput").value || [],
+          authors: JSON.parse(document.getElementById("authorsInput").value) || [],
           institution: document.getElementById("institutionInput").value || "",
           text: text,
           citation: document.getElementById("citationInput").value || "",
