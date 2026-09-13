@@ -397,7 +397,8 @@
       }
 
       function generateResponse() {
-        let responses = [{ text: [""], header: "" }]; // each entry is a response - in each response is the text, a list of strings corresponding to the pages
+        let start_page = parseInt(document.getElementById("start_page").value) || 1 
+        let responses = [{ text: [""], header: "", start_page }]; // each entry is a response - in each response is the text, a list of strings corresponding to the pages
 
         let header = document.getElementById("headerDisplay").innerHTML;
         let mainText = document.getElementById("mainTextDisplay").innerHTML;
@@ -408,7 +409,7 @@
 
         let responsePage = 0;
 
-        for (let i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; start_page++, i++) {
           let page = data[i];
           responses[responses.length - 1]["text"].push("");
           responsePage += 1;
@@ -423,7 +424,7 @@
                 responses[responses.length - 1]["header"] += line["text"];
               }
               else {
-                responses.push({ text: [""], header: line["text"] });
+                responses.push({ text: [""], header: line["text"], start_page: start_page });
                 responsePage = 0;
               }
             } else if (code == mainText && responses.length > 1) {
@@ -435,7 +436,7 @@
 
         let totalObject = {}
         for(let response of responses){
-          Object.assign(totalObject, makeResponse(response.text, response.header))
+          Object.assign(totalObject, makeResponse(response.text, response.header, response.start_page))
         }
 
         downloadString(
@@ -445,7 +446,7 @@
         );
       }
 
-      function makeResponse(text, header) {
+      function makeResponse(text, header, start_page) {
         if (!text) text = [prompt("Text")];
 
         const template = {
@@ -457,7 +458,7 @@
           header: header,
           date_published: new Date(document.getElementById("date_published").value) || "" ,
           date_added: new Date(),
-          start_page: parseInt(document.getElementById("start_page").value) || 1,
+          start_page: start_page
         };
 
         let returnObj = {}
