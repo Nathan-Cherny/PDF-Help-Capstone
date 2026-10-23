@@ -4,43 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Extract Text</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
     <style>
-      #navbar {
-        display: flex;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        z-index: 1000;
-        background: white;
-        padding: 20px;
-        align-items: center;
-        border-top: 1px solid gray;
-        font-size: 15px;
-        text-decoration: none;
-        gap: 1%;
-      }
-
-      :root {
-        --paper: #d6ecf9;
-        --paper-alt: #e2e1d3;
-        --card: #fbfaf5;
-        --ink: #21261f;
-        --ink-soft: #5b6155;
-        --rule: #cfcdbb;
-        --keep: #35604f;
-        --keep-bg: #e7efe9;
-        --reject: #ae3a28;
-        --reject-bg: #f5e4e0;
-        --focus: #2e5eaa;
-        --radius: 3px;
-      }
-
       * {
         box-sizing: border-box;
       }
@@ -49,21 +13,13 @@
         display: none !important;
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        * {
-          animation-duration: 0.001ms !important;
-          transition-duration: 0.001ms !important;
-          scroll-behavior: auto !important;
-        }
-      }
-
       html,
       body {
         margin: 0;
         height: 100%;
-        background: var(--paper);
-        color: var(--ink);
-        font-family: "Inter", system-ui, sans-serif;
+        background: #d6ecf9;
+        color: #21261f;
+        font-family: system-ui, sans-serif;
         font-size: 15px;
         line-height: 1.45;
         overflow: hidden;
@@ -73,510 +29,453 @@
         font-size: 21px;
         font-weight: 600;
         margin: 0;
-        letter-spacing: -0.01em;
-      }
-
-      button {
-        font-family: inherit;
-        font-size: inherit;
-      }
-      button:focus-visible,
-      input:focus-visible,
-      [tabindex]:focus-visible {
-        outline: 2px solid var(--focus);
-        outline-offset: 2px;
       }
 
       .workspace {
-        flex: 1;
-        min-height: 0;
-        display: flex;
         height: 100%;
+        display: flex;
         flex-direction: column;
       }
 
+      /* Header / controls */
       #stats {
-        background-color: white;
+        background: white;
         border-bottom: 1px solid gray;
-        max-height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        font-size: 25px;
         padding: 14px 24px;
-        align-items: center;
       }
 
-      #showAllText {
+      #controls {
+        display: flex;
+        gap: 15px;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      #controls p {
+        margin: 4px 0;
+      }
+
+      .button-column {
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
-        max-height: 85%;
       }
 
-      #showAllText * {
+      /* Text groups */
+      #textList {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 70px; /* room for the navbar */
+      }
+
+      .group-header {
+        display: flex;
+        align-items: center;
+        padding-left: 15px;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 0.5px solid gray;
+        cursor: pointer;
+      }
+
+      .group-header:hover {
+        background: rgba(0, 0, 0, 0.35);
+      }
+
+      .options {
+        margin-left: auto;
+        display: flex;
+        background: rgba(255, 255, 255, 0.5);
+        color: black;
+      }
+
+      .options span {
+        padding: 15px 10px;
+        border: 2px solid gray;
+        text-align: center;
+      }
+
+      .options span:hover {
+        border-color: yellow;
+      }
+
+      .text-row {
+        display: flex;
         padding-left: 20px;
       }
 
-      #showAllText div {
-        display: flex;
-        padding-bottom: 0px;
-        padding-top: 0px;
-      }
-
-      #showAllText p {
+      .text-row p {
         margin: 0;
       }
 
+      .text-row .info {
+        margin-left: auto;
+        padding-right: 25px;
+      }
+
+      /* Upload */
       .dropzone {
         margin: auto;
         width: 100%;
         max-width: 460px;
-        border: 1.5px dashed var(--rule);
-        border-radius: var(--radius);
-        background: var(--card);
+        border: 1.5px dashed #cfcdbb;
+        border-radius: 3px;
+        background: #fbfaf5;
         padding: 56px 24px;
         text-align: center;
-        transition:
-          border-color 120ms ease,
-          background 120ms ease;
       }
+
       .choose-btn {
-        background: var(--ink);
-        color: var(--paper);
+        background: #21261f;
+        color: #d6ecf9;
         border: none;
-        border-radius: var(--radius);
+        border-radius: 3px;
         padding: 10px 20px;
         font-weight: 500;
         cursor: pointer;
       }
 
-      .textDataGroupHTML {
-        display: flex;
-        background-color: rgba(0, 0, 0, 0.25);
-        flex-direction: row;
-        cursor: pointer;
-        border-bottom: 0.5px solid gray;
-        align-items: center;
-        padding-left: 15px;
-      }
-
-      .textDataGroupHTML:hover {
-        background-color: rgba(0, 0, 0, 0.35);
-      }
-
-      .textDataGroupHTML .options {
-        background-color: rgba(255, 255, 255, 0.5);
-        margin-left: auto;
-        text-align: center;
-        padding: 0 !important;
-        color: black !important;
-      }
-
-      .options span {
-        border: 2px solid gray;
-        padding: 15px 10px !important;
-        text-align: center;
-      }
-
-      .options span:hover {
-        border: 2px solid yellow;
+      .error-msg {
+        color: #ae3a28;
+        margin-top: 12px;
       }
 
       input[type="file"] {
         display: none;
       }
+
+      /* Bottom nav */
+      #navbar {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 1%;
+        padding: 20px;
+        background: white;
+        border-top: 1px solid gray;
+      }
+
+      #navbar .close {
+        margin-left: auto;
+        font-size: 20px;
+        cursor: pointer;
+      }
     </style>
+  </head>
+  <body>
+    <div class="workspace">
+      <div id="stats">
+        <h1>See PDF Text Info &amp; Extract</h1>
+        <div id="controls" hidden>
+          <div>
+            <p id="mainTextDisplay">Main Text: null</p>
+            <p id="headerDisplay">Header: null</p>
+          </div>
+          <div class="button-column">
+            <button id="hideAllBtn">Hide All</button>
+            <button id="showTop3Btn">Show All, Top 3</button>
+            <button id="showAllBtn">Show All</button>
+          </div>
+          <div>
+            <button id="generateBtn">Generate Response</button>
+          </div>
+          <div>
+            <input id="authorsInput" placeholder="authors" />
+            <input id="institutionInput" placeholder="institution" />
+            <input id="citationInput" placeholder="citation" />
+            <input id="titleInput" placeholder="title" />
+            <input id="datePublishedInput" placeholder="date_published" />
+            <input id="startPageInput" type="number" placeholder="start_page" />
+          </div>
+        </div>
+      </div>
+
+      <div id="textList"></div>
+
+      <div id="navbar">
+        <a href="/">Home</a>
+        <a href="/crop_pdf">Crop A PDF</a>
+        <a href="/see_pdf_text_info">See PDF Text Info</a>
+        <span class="close" id="closeNavbar">X</span>
+      </div>
+
+      <section id="dropzone" class="dropzone">
+        <p>Upload PDF to scan</p>
+        <button class="choose-btn" id="chooseBtn">Choose a file</button>
+        <input type="file" id="fileInput" accept="application/pdf" />
+        <div>
+          <p>Step for text sizes</p>
+          <input type="number" id="stepInput" value="1" step="any" />
+        </div>
+        <div class="error-msg" id="errorMsg" hidden></div>
+      </section>
+    </div>
+
     <script>
-      var main_text = null;
-      var headers = null;
-      var file = null;
+      const LIMIT = 3; // minimum number of lines for a style group to be shown
+
+      let data = null; // array of pages, each an array of text items
+      let file = null;
+      let mainTextKey = null;
+      let headerKey = null;
+
+      const $ = (id) => document.getElementById(id);
+
       function downloadString(text, filename, mimeType) {
-        // 1. Create a Blob object containing the string data
         const blob = new Blob([text], { type: mimeType });
-
-        // 2. Create an invisible anchor (<a>) element
         const link = document.createElement("a");
-
-        // 3. Create a temporary URL pointing to the Blob object
         link.href = URL.createObjectURL(blob);
-
-        // 4. Set the file name for the download
         link.download = filename;
-
-        // 5. Append the link to the DOM (required for Firefox)
-        document.body.appendChild(link);
-
-        // 6. Programmatically trigger the download
+        document.body.appendChild(link); // required for Firefox
         link.click();
-
-        // 7. Clean up by removing the link and revoking the URL
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
       }
 
       function intToHexColor(color) {
-        return "#" + color.toString(16).padStart(6, "0");
+        return "#" + Number(color).toString(16).padStart(6, "0");
       }
 
-      function getMostCommonKeys(data) {
-        const results = {};
-        for (const key of ["color", "size"]) {
-          const counts = {};
-          for (const item of data[0]) {
-            const value = item[key];
-            counts[value] = (counts[value] || 0) + 1;
+      function styleKey(item) {
+        return `${intToHexColor(item.color)}|${item.size}`;
+      }
+
+      function fileBaseName() {
+        return file.name.split(".")[0];
+      }
+
+      // ---------- Rendering ----------
+
+      function groupByStyle() {
+        const groups = {};
+        for (const page of data) {
+          for (const item of page) {
+            (groups[styleKey(item)] ||= []).push(item);
           }
-          results[key] = Object.entries(counts).sort((a, b) => b[1] - a[1]);
         }
-        return results;
+        // Keep only common styles, most frequent first
+        return Object.entries(groups)
+          .filter(([, items]) => items.length >= LIMIT)
+          .sort((a, b) => b[1].length - a[1].length);
       }
 
-      let data = null;
+      function makeOption(label, background, onClick) {
+        const span = document.createElement("span");
+        span.textContent = label;
+        span.style.backgroundColor = background;
+        span.onclick = (e) => {
+          e.stopPropagation();
+          onClick();
+        };
+        return span;
+      }
 
-      // Render the data once it has been fetched
-      function show_everything() {
+      function renderGroup(key, items, container) {
+        const color = intToHexColor(items[0].color);
+        const rows = [];
+
+        const header = document.createElement("div");
+        header.className = "group-header";
+        header.dataset.group = key;
+        header.style.color = color;
+        header.append(key);
+
+        const options = document.createElement("div");
+        options.className = "options";
+        options.append(
+          makeOption("Make Header", "rgb(255, 200, 200)", () => {
+            headerKey = key;
+            $("headerDisplay").textContent = `Header: ${key}`;
+          }),
+          makeOption("Make Main Text", "rgb(200, 255, 255)", () => {
+            mainTextKey = key;
+            $("mainTextDisplay").textContent = `Main Text: ${key}`;
+          }),
+          makeOption("Download", "", () => {
+            const text = rows.map((row) => row.dataset.text + " ").join("");
+            downloadString(text, fileBaseName(), "text/plain");
+          }),
+        );
+        header.appendChild(options);
+
+        // Clicking a group header collapses/expands its rows
+        header.onclick = () => {
+          const collapsed = rows[0].style.display === "none";
+          rows.forEach((row) => (row.style.display = collapsed ? "flex" : "none"));
+        };
+
+        container.appendChild(header);
+
+        for (const item of items) {
+          const row = document.createElement("div");
+          row.className = "text-row";
+          row.dataset.group = key;
+          row.dataset.text = item.text;
+          row.style.fontSize = `${item.size}px`;
+          row.style.color = color;
+          row.style.backgroundColor = color + "55";
+
+          const text = document.createElement("p");
+          text.textContent = item.text;
+
+          const info = document.createElement("p");
+          info.className = "info";
+          info.textContent = `color: ${item.color}\tsize: ${item.size}`;
+
+          row.append(text, info);
+          container.appendChild(row);
+          rows.push(row);
+        }
+      }
+
+      function showEverything() {
         if (!data || data.length === 0) return;
 
-        // Hide the dropzone once we have data
-        document.getElementById("dropzone").style.display = "none";
+        $("dropzone").hidden = true;
+        $("controls").hidden = false;
 
-        const showAllText = document.getElementById("showAllText");
-        showAllText.innerHTML = ""; // Clear any previous text
-
-        let organizedTextData = {};
-
-        for (let page of data) {
-          for (let textData of page) {
-            let key = `${intToHexColor(parseInt(textData["color"]))}|${textData["size"]}`;
-            if (!organizedTextData[key]) {
-              organizedTextData[key] = [];
-            }
-            organizedTextData[key].push(textData);
-          }
+        const container = $("textList");
+        container.innerHTML = "";
+        for (const [key, items] of groupByStyle()) {
+          renderGroup(key, items, container);
         }
+      }
 
-        const LIMIT = 3;
-        organizedTextData = Object.fromEntries(
-          Object.entries(organizedTextData).filter(
-            ([key, list]) => list.length >= LIMIT,
-          ),
-        );
+      // ---------- Visibility buttons ----------
 
-        organizedTextData = Object.fromEntries(
-          Object.entries(organizedTextData).sort(
-            (a, b) => b[1].length - a[1].length,
-          ),
-        );
+      function setRowsDisplay(display) {
+        document
+          .querySelectorAll(".text-row")
+          .forEach((row) => (row.style.display = display));
+      }
 
-        for (let textDataGroup in organizedTextData) {
-          const textDataGroupHTML = document.createElement("div");
-          textDataGroupHTML.id = textDataGroup;
-          textDataGroupHTML.innerHTML = `${textDataGroup}`;
-          textDataGroupHTML.classList.add("textDataGroupHTML");
+      function showTop3() {
+        setRowsDisplay("none");
+        const shown = {};
+        document.querySelectorAll(".text-row").forEach((row) => {
+          const group = row.dataset.group;
+          shown[group] = (shown[group] || 0) + 1;
+          if (shown[group] <= 3) row.style.display = "flex";
+        });
+      }
 
-          let options = document.createElement("div");
-          options.classList.add("options");
+      // ---------- Response generation ----------
 
-          let makeMainText = document.createElement("span");
-          makeMainText.innerHTML = "Make Main Text";
-          makeMainText.style.backgroundColor = "rgb(200, 255, 255)";
-          makeMainText.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById("mainTextDisplay").innerHTML =
-              textDataGroup;
-          };
-
-          let makeHeader = document.createElement("span");
-          makeHeader.innerHTML = "Make Header";
-          makeHeader.style.backgroundColor = "rgb(255, 200, 200)";
-          makeHeader.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById("headerDisplay").innerHTML = textDataGroup;
-          };
-
-          let download = document.createElement("span");
-          download.innerHTML = "Download";
-          download.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            let elements = document.getElementsByClassName(textDataGroup);
-            let allText = "";
-
-            for (let element of elements) {
-              allText += `${element.firstChild.innerText} `;
-            }
-
-            downloadString(allText, `${file.name.split(".")[0]}`, "text/plain");
-          };
-
-          options.appendChild(makeHeader);
-          options.appendChild(makeMainText);
-          options.appendChild(download);
-
-          textDataGroupHTML.appendChild(options);
-
-          textDataGroupHTML.style.color = intToHexColor(
-            organizedTextData[textDataGroup][0]["color"],
-          );
-
-          textDataGroupHTML.onclick = (e) => {
-            let elements = document.getElementsByClassName(e.target.id);
-
-            let ele1 = elements[0];
-            if (ele1.style.display == "none") {
-              var newStatus = "flex";
-            } else {
-              var newStatus = "none";
-            }
-
-            for (const ele of document.getElementsByClassName(e.target.id)) {
-              ele.style.display = newStatus;
-            }
-          };
-
-          showAllText.appendChild(textDataGroupHTML);
-
-          for (let textData of organizedTextData[textDataGroup]) {
-            const element = document.createElement("div");
-            const text = document.createElement("p");
-            const info = document.createElement("p");
-
-            const hexColor = intToHexColor(textData["color"]);
-
-            element.classList.add(textDataGroup);
-            element.classList.add("textDataElement");
-            element.style.fontSize = `${textData["size"]}px`;
-            element.style.color = hexColor;
-            element.style.backgroundColor = hexColor + "55";
-
-            info.style.marginLeft = "auto";
-            info.style.paddingRight = "25px";
-
-            text.innerHTML = textData["text"];
-            info.innerHTML = `color: ${textData["color"]}\tsize: ${textData["size"]}`;
-
-            element.appendChild(text);
-            element.appendChild(info);
-            showAllText.appendChild(element);
-          }
-        }
-
-        let highestKey = Object.keys(organizedTextData)[0].split("|");
-        document.getElementById("stats").innerHTML = `
-              <h1 style="text-align: left; width: 100%">See PDF Text Info & Extract</h1>
-              <div style="display: flex;gap: 15px;flex-direction: row;width: 75%;justify-content: space-around;align-content: center;align-items: center;">
-                <div>
-                  <p id="mainTextDisplay">Main Text: null</p>
-                  <p id="headerDisplay">Header: null</p>
-                </div>
-                <div style="
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-around;
-                ">
-                  <button onclick="hideAllGroupHTMLs()">Hide All</button>
-                  <button onclick="showAllTop3GroupHTMLs()">Show All, Top 3</button>
-                  <button onclick="showAllGroupHTMLs()">Show All</button>
-                </div>
-                <div>
-                  <button onclick="generateResponse()">Generate Response</button>
-                </div>
-                <div>
-                  <input id="authorsInput" placeholder="authors" />
-                  <input id="institutionInput" placeholder="institution" />
-                  <input id="citationInput" placeholder="citation" />
-                  <input id="titleInput" placeholder="title" />
-                  <input id="date_published" placeholder="date_published" />
-                  <input id="start_page" type="number" placeholder="start_page" />
-                </div>
-              </div>
-              `;
+      function makeResponse(text, header, startPage) {
+        const dateValue = $("datePublishedInput").value;
+        return {
+          [header]: {
+            authors: JSON.parse($("authorsInput").value || "[]"),
+            institution: $("institutionInput").value,
+            text: text.filter(Boolean),
+            citation: $("citationInput").value,
+            title: $("titleInput").value,
+            header,
+            date_published: dateValue ? new Date(dateValue) : "",
+            date_added: new Date(),
+            start_page: startPage,
+          },
+        };
       }
 
       function generateResponse() {
-        let start_page = parseInt(document.getElementById("start_page").value) || 1 
-        let responses = [{ text: [""], header: "", start_page }]; // each entry is a response - in each response is the text, a list of strings corresponding to the pages
-
-        let header = document.getElementById("headerDisplay").innerHTML;
-        let mainText = document.getElementById("mainTextDisplay").innerHTML;
-
-        if(!header.includes("|") || !mainText.includes("|")){
-          alert(`Hey man, you have to provide a header or a main text. its not gonna work otherwise`)
+        if (!headerKey || !mainTextKey) {
+          alert("Choose a header style and a main text style first.");
+          return;
         }
 
+        let pageNumber = parseInt($("startPageInput").value) || 1;
+
+        // Each response holds a header and a list of strings (one per page)
+        const responses = [{ text: [""], header: "", start_page: pageNumber }];
         let responsePage = 0;
 
-        for (let i = 0; i < data.length; start_page++, i++) {
-          let page = data[i];
-          responses[responses.length - 1]["text"].push("");
+        for (const page of data) {
+          const current = () => responses[responses.length - 1];
+          current().text.push("");
           responsePage += 1;
-          for (let line of page) {
-            let code = `${intToHexColor(line["color"])}|${line["size"]}`;
 
-            if (code == header) {
-              if (
-                responses[responses.length - 1]["text"].length == 1 &&
-                responses[responses.length - 1]["text"][0] == ""
-              ) {
-                responses[responses.length - 1]["header"] += line["text"];
-              }
-              else {
-                responses.push({ text: [""], header: line["text"], start_page: start_page });
-                responsePage = 0;
-              }
-            } else if (code == mainText && responses.length > 1) {
-              responses[responses.length - 1]["text"][responsePage] +=
-                line["text"];
+          for (const line of page) {
+            const key = styleKey(line);
+
+            if (key === headerKey) {
+              responses.push({
+                text: [""],
+                header: line.text,
+                start_page: pageNumber,
+              });
+              responsePage = 0;
+            } else if (key === mainTextKey && responses.length > 1) {
+              current().text[responsePage] += line.text;
             }
           }
+          pageNumber++;
         }
 
-        let totalObject = {}
-        for(let response of responses){
-          Object.assign(totalObject, makeResponse(response.text, response.header, response.start_page))
+        const result = {};
+        for (const r of responses) {
+          Object.assign(result, makeResponse(r.text, r.header, r.start_page));
         }
 
         downloadString(
-          JSON.stringify(totalObject, null, 4),
-          `${file.name.split(".")[0]}.json`,
+          JSON.stringify(result, null, 4),
+          `${fileBaseName()}.json`,
           "application/json",
         );
       }
 
-      function makeResponse(text, header, start_page) {
-        if (!text) text = [prompt("Text")];
+      // ---------- Upload ----------
 
-        const template = {
-          authors: JSON.parse(document.getElementById("authorsInput").value || "[]"),
-          institution: document.getElementById("institutionInput").value || "",
-          text: text.filter(n => !!n),
-          citation: document.getElementById("citationInput").value || "",
-          title: document.getElementById("titleInput").value || "",
-          header: header,
-          date_published: new Date(document.getElementById("date_published").value) || "" ,
-          date_added: new Date(),
-          start_page: start_page
-        };
+      async function uploadFile(selectedFile) {
+        const errorMsg = $("errorMsg");
+        errorMsg.hidden = true;
 
-        let returnObj = {}
-        returnObj[`${header}`] = template
-        return returnObj
-      }
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("step", $("stepInput").value);
 
-      function hideAllGroupHTMLs() {
-        let elements = document.getElementsByClassName("textDataElement");
-        for (let element of elements) {
-          element.style.display = "none";
-        }
-      }
+        try {
+          const response = await fetch("/see_pdf_text_info", {
+            method: "POST",
+            body: formData,
+          });
 
-      function showAllTop3GroupHTMLs() {
-        hideAllGroupHTMLs();
-
-        let groupDatas = document.getElementsByClassName("textDataGroupHTML");
-        for (let groupData of groupDatas) {
-          let textDataGroup = groupData.id;
-
-          let top3elements = [];
-          let textDataElements = document.getElementsByClassName(textDataGroup);
-          for (let i = 0; i < 3; i++) {
-            top3elements.push(textDataElements[i]);
+          if (response.ok) {
+            data = await response.json();
+            showEverything();
+          } else {
+            const errorData = await response.json();
+            errorMsg.textContent = errorData.error || "Upload failed";
+            errorMsg.hidden = false;
           }
-
-          for (let element of top3elements) {
-            element.style.display = "flex";
-          }
+        } catch (err) {
+          errorMsg.textContent = "Network error occurred.";
+          errorMsg.hidden = false;
+          console.error(err);
         }
       }
 
-      function showAllGroupHTMLs() {
-        let elements = document.getElementsByClassName("textDataElement");
-        for (let element of elements) {
-          element.style.display = "flex";
-        }
-      }
+      // ---------- Setup ----------
 
-      // Setup event listeners when the page loads
       document.addEventListener("DOMContentLoaded", () => {
-        const fileInput = document.getElementById("fileInput");
-        const chooseBtn = document.getElementById("chooseBtn");
-        const errorMsg = document.getElementById("errorMsg");
+        $("chooseBtn").addEventListener("click", () => $("fileInput").click());
 
-        chooseBtn.addEventListener("click", () => {
-          fileInput.click();
+        $("fileInput").addEventListener("change", (e) => {
+          file = e.target.files[0];
+          if (file) uploadFile(file);
         });
 
-        fileInput.addEventListener("change", async (e) => {
-          file = e.target.files[0];
-          if (!file) return;
+        $("hideAllBtn").addEventListener("click", () => setRowsDisplay("none"));
+        $("showTop3Btn").addEventListener("click", showTop3);
+        $("showAllBtn").addEventListener("click", () => setRowsDisplay("flex"));
+        $("generateBtn").addEventListener("click", generateResponse);
 
-          // Prepare the file for sending
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("step", document.getElementById("stepInput").value );
-
-          try {
-            // Send to the Flask backend
-            const response = await fetch("/see_pdf_text_info", {
-              method: "POST",
-              body: formData,
-            });
-
-            if (response.ok) {
-              data = await response.json();
-              show_everything();
-            } else {
-              const errorData = await response.json();
-              errorMsg.textContent = errorData.error || "Upload failed";
-              errorMsg.removeAttribute("hidden");
-            }
-          } catch (err) {
-            errorMsg.textContent = "Network error occurred.";
-            errorMsg.removeAttribute("hidden");
-            console.error(err);
-          }
+        $("closeNavbar").addEventListener("click", () => {
+          $("navbar").style.display = "none";
         });
       });
     </script>
-  </head>
-  <body onload="show_everything()">
-    <div class="workspace">
-      <div id="stats">
-        <h1 style="text-align: left; width: 100%">
-          See PDF Text Info & Extract
-        </h1>
-      </div>
-      <div id="showAllText"></div>
-      <div id="navbar">
-        <a href="/">Home</a>
-        <a href="/crop_pdf">Crop A PDF</a>
-        <a href="/see_pdf_text_info">See PDF Text Info</a>
-        <span
-          style="
-            color: black;
-            margin-left: auto;
-            font-size: 20px;
-            cursor: pointer;
-          "
-          onclick="document.getElementById('navbar').style.display = 'none'"
-        >
-          X
-        </span>
-      </div>
-
-      <section id="dropzone" class="dropzone">
-        <p class="lede">Upload PDF to scan</p>
-        <button class="choose-btn" id="chooseBtn">Choose a file</button>
-        <input type="file" id="fileInput" accept="application/pdf" />
-        <div>
-          <p>Step for text sizes</p>
-          <input type="number" name="step" value="1" id="stepInput" step="any" id="stepInput" />
-        </div>
-        <div class="error-msg" id="errorMsg" hidden=""></div>
-      </section>
-    </div>
   </body>
 </html>
