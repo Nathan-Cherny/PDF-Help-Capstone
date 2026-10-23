@@ -59,6 +59,54 @@
       .button-column {
         display: flex;
         flex-direction: column;
+        gap: 6px;
+      }
+
+      #controls button {
+        padding: 6px 12px;
+        border: 1px solid #b8b8b8;
+        border-radius: 4px;
+        background: #f4f4f4;
+        cursor: pointer;
+      }
+
+      #controls button:hover {
+        background: #e8e8e8;
+      }
+
+      .metadata {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(130px, 1fr));
+        gap: 8px 12px;
+      }
+
+      .metadata label {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #5b6155;
+      }
+
+      .metadata input {
+        padding: 6px 8px;
+        border: 1px solid #c4c4c4;
+        border-radius: 4px;
+        background: white;
+        font: inherit;
+        font-size: 14px;
+        color: #21261f;
+      }
+
+      .metadata input::placeholder {
+        color: #aaa;
+      }
+
+      .metadata input:focus {
+        outline: none;
+        border-color: #2e5eaa;
+        box-shadow: 0 0 0 2px rgba(46, 94, 170, 0.2);
       }
 
       /* Text groups */
@@ -114,8 +162,11 @@
 
       /* Upload */
       .dropzone {
-        margin: auto;
-        width: 100%;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100% - 40px);
         max-width: 460px;
         border: 1.5px dashed #cfcdbb;
         border-radius: 3px;
@@ -168,7 +219,11 @@
     <div class="workspace">
       <div id="stats">
         <h1>See PDF Text Info &amp; Extract</h1>
-        <div id="controls" hidden>
+        <div
+          style="border-top: 1px solid black; padding-top: 5px"
+          id="controls"
+          hidden
+        >
           <div>
             <p id="mainTextDisplay">Main Text: null</p>
             <p id="headerDisplay">Header: null</p>
@@ -181,13 +236,31 @@
           <div>
             <button id="generateBtn">Generate Response</button>
           </div>
-          <div>
-            <input id="authorsInput" placeholder="authors" />
-            <input id="institutionInput" placeholder="institution" />
-            <input id="citationInput" placeholder="citation" />
-            <input id="titleInput" placeholder="title" />
-            <input id="datePublishedInput" placeholder="date_published" />
-            <input id="startPageInput" type="number" placeholder="start_page" />
+          <div class="metadata">
+            <label>
+              Authors
+              <input id="authorsInput" placeholder='["Quag Sire"]' />
+            </label>
+            <label>
+              Institution
+              <input id="institutionInput" placeholder="University of..." />
+            </label>
+            <label>
+              Citation
+              <input id="citationInput" placeholder="Citation" />
+            </label>
+            <label>
+              Title
+              <input id="titleInput" placeholder="Title" />
+            </label>
+            <label>
+              Date published
+              <input id="datePublishedInput" placeholder="YYYY-MM-DD" />
+            </label>
+            <label>
+              Start page
+              <input id="startPageInput" type="number" placeholder="1" />
+            </label>
           </div>
         </div>
       </div>
@@ -202,12 +275,18 @@
       </div>
 
       <section id="dropzone" class="dropzone">
-        <p>Upload PDF to scan</p>
-        <button class="choose-btn" id="chooseBtn">Choose a file</button>
-        <input type="file" id="fileInput" accept="application/pdf" />
-        <div>
-          <p>Step for text sizes</p>
-          <input type="number" id="stepInput" value="1" step="any" />
+        <div id="dropzoneIdle">
+          <p>Upload PDF to scan</p>
+          <button class="choose-btn" id="chooseBtn">Choose a file</button>
+          <input type="file" id="fileInput" accept="application/pdf" />
+          <div>
+            <p>Step for text sizes</p>
+            <input type="number" id="stepInput" value="1" step="any" />
+          </div>
+        </div>
+        <div id="processingMsg" hidden>
+          <p>Processing...</p>
+          <a href="https://pokemondb.net/pokedex/quagsire"><img src="https://img.pokemondb.net/sprites/black-white/anim/normal/quagsire-f.gif" alt="Quagsire"></a>
         </div>
         <div class="error-msg" id="errorMsg" hidden></div>
       </section>
@@ -303,7 +382,9 @@
         // Clicking a group header collapses/expands its rows
         header.onclick = () => {
           const collapsed = rows[0].style.display === "none";
-          rows.forEach((row) => (row.style.display = collapsed ? "flex" : "none"));
+          rows.forEach(
+            (row) => (row.style.display = collapsed ? "flex" : "none"),
+          );
         };
 
         container.appendChild(header);
@@ -431,6 +512,8 @@
       async function uploadFile(selectedFile) {
         const errorMsg = $("errorMsg");
         errorMsg.hidden = true;
+        $("dropzoneIdle").hidden = true;
+        $("processingMsg").hidden = false;
 
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -454,6 +537,11 @@
           errorMsg.textContent = "Network error occurred.";
           errorMsg.hidden = false;
           console.error(err);
+        } finally {
+          // On success the dropzone is hidden entirely; on failure, restore it
+          $("processingMsg").hidden = true;
+          $("dropzoneIdle").hidden = false;
+          $("fileInput").value = "";
         }
       }
 
