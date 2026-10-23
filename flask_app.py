@@ -1,11 +1,19 @@
 import os
 from flask import Flask, render_template, request, jsonify
 import pymupdf 
+import numpy as np
 
 app = Flask(__name__)
 
+def closest_number(numbers, target):
+    return min(numbers, key=lambda x: abs(x - target))
 
-def get_data_from_pdf(pdf_bytes):
+def get_data_from_pdf(pdf_bytes, step):
+
+    steps = list(map(float, np.arange(0, 50, step)))
+
+    print(steps)
+
     doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
 
     all_data = []
@@ -24,7 +32,7 @@ def get_data_from_pdf(pdf_bytes):
                         {
                             "text": span["text"],
                             "font": span["font"],
-                            "size": span["size"],
+                            "size": closest_number(steps, span["size"]),
                             "color": span["color"],
                             "bbox": span["bbox"],
                         }
@@ -57,7 +65,8 @@ def see_pdf_text_info():
         if file:
             # Read the file bytes and pass them to your parser
             pdf_bytes = file.read()
-            extracted_data = get_data_from_pdf(pdf_bytes)
+            step = request.form["step"]
+            extracted_data = get_data_from_pdf(pdf_bytes, float(step))
             return jsonify(extracted_data)
 
     # For GET requests, render the page

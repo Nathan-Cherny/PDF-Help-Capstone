@@ -516,6 +516,7 @@
           // Prepare the file for sending
           const formData = new FormData();
           formData.append("file", file);
+          formData.append("step", document.getElementById("stepInput").value );
 
           try {
             // Send to the Flask backend
@@ -570,6 +571,10 @@
         <p class="lede">Upload PDF to scan</p>
         <button class="choose-btn" id="chooseBtn">Choose a file</button>
         <input type="file" id="fileInput" accept="application/pdf" />
+        <div>
+          <p>Step for text sizes</p>
+          <input type="number" name="step" value="1" id="stepInput" step="any" id="stepInput" />
+        </div>
         <div class="error-msg" id="errorMsg" hidden=""></div>
       </section>
     </div>
